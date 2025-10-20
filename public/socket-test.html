@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NestJS WebSocket Chat Test</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  
+  <style>
+    body { font-family: Arial, sans-serif; background: #121212; color: #eee; padding: 20px; }
+    h1 { color: #90caf9; }
+    .container { display: flex; gap: 20px; }
+    .box { background: #1e1e1e; padding: 15px; border-radius: 10px; width: 45%; }
+    input, button { padding: 5px 10px; margin: 5px 0; border-radius: 5px; border: none; }
+    input { width: 80%; }
+    button { cursor: pointer; background: #1976d2; color: white; }
+    pre { background: #000; padding: 10px; height: 200px; overflow-y: scroll; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>💬 NestJS WebSocket Manual Tester</h1>
+  <div class="container">
+    <!-- User A -->
+    <div class="box" id="userA-box">
+      <h2>User A</h2>
+      <label>JWT Token:</label><br />
+      <input type="text" id="tokenA" placeholder="Paste JWT for User A" /><br />
+      <button onclick="connectUser('A')">Connect</button>
+      <br /><br />
+      <label>Chat ID:</label><br />
+      <input type="number" id="chatIdA" value="1" /><br />
+      <button onclick="joinRoom('A')">Join Room</button>
+      <br /><br />
+      <input type="text" id="messageA" placeholder="Type message..." />
+      <button onclick="sendMessage('A')">Send</button>
+      <h3>Events:</h3>
+      <pre id="logA"></pre>
+    </div>
+
+    <!-- User B -->
+    <div class="box" id="userB-box">
+      <h2>User B</h2>
+      <label>JWT Token:</label><br />
+      <input type="text" id="tokenB" placeholder="Paste JWT for User B" /><br />
+      <button onclick="connectUser('B')">Connect</button>
+      <br /><br />
+      <label>Chat ID:</label><br />
+      <input type="number" id="chatIdB" value="1" /><br />
+      <button onclick="joinRoom('B')">Join Room</button>
+      <br /><br />
+      <input type="text" id="messageB" placeholder="Type message..." />
+      <button onclick="sendMessage('B')">Send</button>
+      <h3>Events:</h3>
+      <pre id="logB"></pre>
+    </div>
+  </div>
+
+  <script>
+    const SERVER_URL = 'http://localhost:3000'; // change if running on another host/port
+    const clients = {};
+
+    function log(user, msg) {
+      const box = document.getElementById(`log${user}`);
+      box.textContent += msg + "\n";
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function connectUser(user) {
+      const token = document.getElementById(`token${user}`).value.trim();
+      if (!token) return alert("Please paste a JWT token first");
+
+      const socket = io(SERVER_URL, {
+        auth: { token },
+        transports: ['websocket'],
+      });
+      clients[user] = socket;
+
+      socket.on('connect', () => log(user, `✅ Connected (${socket.id})`));
+      socket.on('connect_error', (err) => log(user, `❌ Connect error: ${err.message}`));
+      socket.on('disconnect', (r) => log(user, `🔌 Disconnected: ${r}`));
+
+      socket.on('joinedRoom', (d) => log(user, `📦 joinedRoom: ${JSON.stringify(d)}`));
+      socket.on('messageSent', (d) => log(user, `✉️ messageSent: ${JSON.stringify(d)}`));
+      socket.on('receiveMessage', (d) => log(user, `📩 receiveMessage: ${JSON.stringify(d)}`));
+      socket.on('newMessage', (d) => log(user, `💬 newMessage(room): ${JSON.stringify(d)}`));
+      socket.on('messageUpdated', (d) => log(user, `📝 messageUpdated: ${JSON.stringify(d)}`));
+    }
+
+    function joinRoom(user) {
+      const chatId = Number(document.getElementById(`chatId${user}`).value);
+      const socket = clients[user];
+      if (!socket) return alert(`${user} not connected`);
+      socket.emit('joinRoom', { chatId });
+      log(user, `➡️ joinRoom emitted (chat_${chatId})`);
+    }
+
+    function sendMessage(user) {
+      const chatId = Number(document.getElementById(`chatId${user}`).value);
+      const msg = document.getElementById(`message${user}`).value;
+      const socket = clients[user];
+      if (!socket) return alert(`${user} not connected`);
+      if (!msg) return alert("Type a message first");
+      socket.emit('sendMessage', { chatId, message: msg });
+      log(user, `➡️ sendMessage emitted: "${msg}"`);
+    }
+  </script>
+</body>
+</html>
