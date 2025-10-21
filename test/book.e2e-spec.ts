@@ -11,9 +11,12 @@ describe('Books (e2e)', () => {
   let createdBookId: number;
   beforeAll(async () => {
     app = await createTestingApp();
-    adminToken = await loginAs(app, 'admin@gmail.com', 'Ahmed123$');
-    librarianToken = await loginAs(app, 'librarian@gmail.com', 'Ahmed123$');
-    userToken = await loginAs(app, 'user@gmail.com', 'Ahmed123$');
+    const adminLogin = await loginAs(app, 'admin@gmail.com', 'Ahmed123$');
+    const librarianLogin = await loginAs(app, 'librarian@gmail.com', 'Ahmed123$');
+    const userLogin = await loginAs(app, 'user@gmail.com', 'Ahmed123$');
+    adminToken = adminLogin.token;
+    librarianToken = librarianLogin.token;
+    userToken = userLogin.token;
   });
   afterAll(async () => {
     await app.close();

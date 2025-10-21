@@ -9,11 +9,11 @@ void (async () => {
     console.log('📦 Database connected.');
     await seedRoles();
     await seedUsers();
-    console.log('🎉 All seeders executed successfully!');
+    console.log('All seeders executed successfully!');
   } catch (error) {
-    console.error('❌ Error running seeders:', error);
+    console.error('Error running seeders:', error);
   } finally {
     await AppDataSource.destroy();
-    console.log('🔌 Connection closed.');
+    console.log('Connection closed.');
   }
 })();

@@ -17,31 +17,25 @@ import type { RequestWithUser } from 'src/common/types/interface';
 import { UpdateProfileDto } from './dto/update.dto';
 import { JwtAuthGuard } from 'src/common/guards/auth.guard';
 import { ROLES } from 'src/common/constants/constant';
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Roles(ROLES.ADMIN, ROLES.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
   async deleteAccount(@Req() req: RequestWithUser, @Param('id', PositiveIntPipe) id: number) {
-    try {
-      const userId = req.user.id;
-      const targetId = id;
-      const result = await this.userService.deleteAccount(userId, targetId);
-      return {
-        message: 'Account Deleted Successfully',
-        result,
-      };
-    } catch (err) {
-      console.log('Error in delete account Api', err);
-      throw new InternalServerErrorException('Internal Server Error');
-    }
+    const userId = req.user.id;
+    const targetId = id;
+    const result = await this.userService.deleteAccount(userId, targetId);
+    return {
+      message: 'Account Deleted Successfully',
+      result,
+    };
   }
 
   @Roles(ROLES.USER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Patch(':id')
+  @Patch('/')
   async updateProfile(@Req() req: RequestWithUser, @Body() updateProfileDto: UpdateProfileDto) {
     try {
       const result = await this.userService.updateProfile(req.user.id, updateProfileDto);
@@ -56,7 +50,6 @@ export class UserController {
   }
 
   @Roles(ROLES.ADMIN, ROLES.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get(':id')
   async getUserById(@Req() req: RequestWithUser, @Param('id', PositiveIntPipe) id: number) {
     try {

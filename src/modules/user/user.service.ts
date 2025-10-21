@@ -103,7 +103,7 @@ export class UserService {
     });
 
     if (!existingUser) throw new NotFoundException('User Not found');
-    if (![ROLES.ADMIN, ROLES.SUPER_ADMIN].includes(existingUser.role!.name)) {
+    if ([ROLES.ADMIN, ROLES.SUPER_ADMIN].includes(existingUser.role!.name)) {
       throw new ForbiddenException('Forbidden: Insufficient role');
     }
     existingUser.isActive = false;
@@ -137,12 +137,13 @@ export class UserService {
     });
 
     if (!user) throw new NotFoundException('User not found');
-    if (currentAdmin.role === ROLES.ADMIN) {
-      const restrictedRoles = [ROLES.ADMIN, ROLES.SUPER_ADMIN];
-      const targetRole = user.role?.name as string;
-      if (currentAdmin.id !== userId && restrictedRoles.includes(targetRole)) {
-        throw new ForbiddenException('Forbidden: Insufficient role to access this user');
-      }
+    const targetRole = user.role?.name as string;
+    if (
+      currentAdmin.role === ROLES.ADMIN &&
+      currentAdmin.id !== userId &&
+      [ROLES.ADMIN, ROLES.SUPER_ADMIN].includes(targetRole)
+    ) {
+      throw new ForbiddenException('Forbidden: Insufficient role to access this user');
     }
     return user;
   }

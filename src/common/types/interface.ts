@@ -75,3 +75,7 @@ export interface Error {
 export interface RequestWithUser extends Request {
   user: JwtPayload;
 }
+export interface AuthUtilResponse {
+  token: string;
+  id: number;
+}
