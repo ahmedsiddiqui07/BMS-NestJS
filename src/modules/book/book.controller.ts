@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  InternalServerErrorException,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from 'src/common/guards/auth.guard';
 import { BookService } from './book.service';
 import { Roles } from 'src/common/decorators/role.decorator';
@@ -16,12 +26,17 @@ export class BookController {
   @Roles(ROLES.ADMIN, ROLES.SUPER_ADMIN)
   @Post('/')
   async createBook(@Body() createBookDto: CreateBookDto) {
-    const { author, stock, title } = createBookDto;
-    const book = await this.bookService.createBook({ title, author, stock });
-    return {
-      message: 'Book Created Successfully',
-      book,
-    };
+    try {
+      const { author, stock, title } = createBookDto;
+      const book = await this.bookService.createBook({ title, author, stock });
+      return {
+        message: 'Book Created Successfully',
+        book,
+      };
+    } catch (err) {
+      console.log('Error in create book Api', err);
+      throw new InternalServerErrorException('Internal Server Error');
+    }
   }
 
   @Roles(ROLES.ADMIN, ROLES.LIBRARIAN, ROLES.SUPER_ADMIN)
@@ -31,19 +46,29 @@ export class BookController {
     @Body() updateBookDto: UpdateBookDto,
     @Param('id', PositiveIntPipe) id: number,
   ) {
-    const role = req.user.role;
-    const book = await this.bookService.updateBook({ id, updateBookDto, role });
-    return {
-      message: 'Book Updated Successfully',
-      book,
-    };
+    try {
+      const role = req.user.role;
+      const book = await this.bookService.updateBook({ id, updateBookDto, role });
+      return {
+        message: 'Book Updated Successfully',
+        book,
+      };
+    } catch (err) {
+      console.log('Error in Update Book Api', err);
+      throw new InternalServerErrorException('Internal Server Error');
+    }
   }
   @Get('/:id')
   async getBookById(@Param('id', PositiveIntPipe) id: number) {
-    const book = await this.bookService.getBookById(id);
-    return {
-      message: 'Book fetched Successfully',
-      book,
-    };
+    try {
+      const book = await this.bookService.getBookById(id);
+      return {
+        message: 'Book fetched Successfully',
+        book,
+      };
+    } catch (err) {
+      console.log('Error in Get Book By Id Api', err);
+      throw new InternalServerErrorException('Internal Server Error');
+    }
   }
 }

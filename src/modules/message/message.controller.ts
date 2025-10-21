@@ -1,4 +1,14 @@
-import { Body, Controller, Param, ParseIntPipe, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  InternalServerErrorException,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { MessageService } from './message.service';
 import { JwtAuthGuard } from 'src/common/guards/auth.guard';
 import { RolesGuard } from 'src/common/guards/role.guard';
@@ -16,12 +26,17 @@ export class MessageController {
   @Roles(ROLES.USER, ROLES.LIBRARIAN)
   @Post('/')
   async sendMessage(@Req() req: RequestWithUser, @Body() sendMessageDto: SendMessageDto) {
-    const senderId = req.user.id;
-    const result = await this.messageService.sendMessage(senderId, sendMessageDto);
-    return {
-      message: 'Message Sent successfully',
-      result,
-    };
+    try {
+      const senderId = req.user.id;
+      const result = await this.messageService.sendMessage(senderId, sendMessageDto);
+      return {
+        message: 'Message Sent successfully',
+        result,
+      };
+    } catch (err) {
+      console.log('Error in Send Message Api', err);
+      throw new InternalServerErrorException('Internal Server Error');
+    }
   }
 
   @Roles(ROLES.USER, ROLES.LIBRARIAN)
@@ -31,18 +46,23 @@ export class MessageController {
     @Body() updateMessageDto: UpdateMessageDto,
     @Param('id', ParseIntPipe) id: number,
   ) {
-    const senderId = req.user.id;
-    const messageId = id;
-    const { message } = updateMessageDto;
-    const result = await this.messageService.updateMessage({
-      senderId,
-      messageId,
-      message,
-    });
+    try {
+      const senderId = req.user.id;
+      const messageId = id;
+      const { message } = updateMessageDto;
+      const result = await this.messageService.updateMessage({
+        senderId,
+        messageId,
+        message,
+      });
 
-    return {
-      message: 'Message Updated Successfully',
-      result,
-    };
+      return {
+        message: 'Message Updated Successfully',
+        result,
+      };
+    } catch (err) {
+      console.log('Error in update messaeg Api', err);
+      throw new InternalServerErrorException('Internal Server Error');
+    }
   }
 }
