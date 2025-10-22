@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Param,
-  UseGuards,
-  Req,
-  ParseIntPipe,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Controller, Post, Get, Param, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import type { RequestWithUser } from 'src/common/types/interface';
 import { Roles } from 'src/common/decorators/role.decorator';
@@ -23,31 +14,21 @@ export class ChatController {
   @Post(':id')
   @Roles(ROLES.LIBRARIAN, ROLES.USER)
   async createChat(@Req() req: RequestWithUser, @Param('id', ParseIntPipe) id: number) {
-    try {
-      const result = await this.chatService.createChat(req.user, id);
-      return {
-        message: 'Chat created successfully',
-        result,
-      };
-    } catch (err) {
-      console.log('Error in create chat Api', err);
-      throw new InternalServerErrorException('Internal Server Error');
-    }
+    const result = await this.chatService.createChat(req.user, id);
+    return {
+      message: 'Chat created successfully',
+      result,
+    };
   }
 
   @Get(':id')
   @Roles(ROLES.LIBRARIAN, ROLES.USER)
   async getChatById(@Req() req: RequestWithUser, @Param('id', ParseIntPipe) id: number) {
-    try {
-      const currentUser = req.user;
-      const result = await this.chatService.getChatById(currentUser.id, id);
-      return {
-        message: 'Chat fetched successfully',
-        result,
-      };
-    } catch (err) {
-      console.log('Error in get chat by id Api', err);
-      throw new InternalServerErrorException('Internal Server Error');
-    }
+    const currentUser = req.user;
+    const result = await this.chatService.getChatById(currentUser.id, id);
+    return {
+      message: 'Chat fetched successfully',
+      result,
+    };
   }
 }

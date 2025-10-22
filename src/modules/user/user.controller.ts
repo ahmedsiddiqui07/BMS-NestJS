@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  InternalServerErrorException,
-  Param,
-  Patch,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Roles } from 'src/common/decorators/role.decorator';
 import { RolesGuard } from 'src/common/guards/role.guard';
@@ -37,30 +27,20 @@ export class UserController {
   @Roles(ROLES.USER)
   @Patch('/')
   async updateProfile(@Req() req: RequestWithUser, @Body() updateProfileDto: UpdateProfileDto) {
-    try {
-      const result = await this.userService.updateProfile(req.user.id, updateProfileDto);
-      return {
-        message: 'Profile updated Successfully',
-        result,
-      };
-    } catch (err) {
-      console.log('Error in update profile Api', err);
-      throw new InternalServerErrorException('Internal Server Error');
-    }
+    const result = await this.userService.updateProfile(req.user.id, updateProfileDto);
+    return {
+      message: 'Profile updated Successfully',
+      result,
+    };
   }
 
   @Roles(ROLES.ADMIN, ROLES.SUPER_ADMIN)
   @Get(':id')
   async getUserById(@Req() req: RequestWithUser, @Param('id', PositiveIntPipe) id: number) {
-    try {
-      const result = await this.userService.getUserById(req.user, id);
-      return {
-        message: 'User fetched successfully',
-        result,
-      };
-    } catch (err) {
-      console.log('Error in get user by id Api', err);
-      throw new InternalServerErrorException('Internal Server Error');
-    }
+    const result = await this.userService.getUserById(req.user, id);
+    return {
+      message: 'User fetched successfully',
+      result,
+    };
   }
 }

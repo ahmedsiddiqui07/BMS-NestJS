@@ -31,7 +31,6 @@ export class BookRequestService {
     }
 
     existing.status = status;
-    existing.updatedAt = new Date();
 
     const updated = await this.bookRequestRepo.save(existing);
     return {

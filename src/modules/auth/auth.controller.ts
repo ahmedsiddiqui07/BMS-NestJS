@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  InternalServerErrorException,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import type { Request } from 'express';
@@ -45,38 +37,28 @@ export class AuthController {
   @Post('login')
   @SanitizeResponse()
   async login(@Body() loginDto: LoginDto): Promise<AuthLoginResponse> {
-    try {
-      const { email, password } = loginDto;
-      const user = await this.userService.login(email, password);
-      const payload: JwtPayload = { id: user.id, role: user.role?.name ?? 'user' };
-      const tokens = await this.authService.generateTokens(payload);
-      return {
-        message: 'Login Successful',
-        user,
-        tokens,
-      };
-    } catch (err) {
-      console.log('Error in Login Api', err);
-      throw new InternalServerErrorException('Internal Server Error');
-    }
+    const { email, password } = loginDto;
+    const user = await this.userService.login(email, password);
+    const payload: JwtPayload = { id: user.id, role: user.role?.name ?? 'user' };
+    const tokens = await this.authService.generateTokens(payload);
+    return {
+      message: 'Login Successful',
+      user,
+      tokens,
+    };
   }
 
   @Post('register')
   @SanitizeResponse()
   async register(@Body() registerDto: RegisterDto): Promise<AuthLoginResponse> {
-    try {
-      const { name, email, password } = registerDto;
-      const user = await this.userService.register(name, email, password);
-      const payload: JwtPayload = { id: user.id, role: user.role?.name ?? 'user' };
-      const tokens = await this.authService.generateTokens(payload);
-      return {
-        message: 'Login Successful',
-        user,
-        tokens,
-      };
-    } catch (err) {
-      console.log('Error in Register Api', err);
-      throw new InternalServerErrorException('Internal Server Error');
-    }
+    const { name, email, password } = registerDto;
+    const user = await this.userService.register(name, email, password);
+    const payload: JwtPayload = { id: user.id, role: user.role?.name ?? 'user' };
+    const tokens = await this.authService.generateTokens(payload);
+    return {
+      message: 'Login Successful',
+      user,
+      tokens,
+    };
   }
 }
