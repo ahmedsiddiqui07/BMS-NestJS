@@ -1,5 +1,3 @@
-export const roles = ['super_admin', 'admin', 'librarian', 'user'];
-
 export const usersData = [
   { name: 'Super Admin', email: 'superadmin@gmail.com', role: 'super_admin' },
   { name: 'Admin', email: 'admin@gmail.com', role: 'admin' },
@@ -12,7 +10,6 @@ export const ROLES = {
   ADMIN: 'admin',
   SUPER_ADMIN: 'super_admin',
 };
-
 export const allowedPairs = [
   ['user', 'librarian'],
   ['librarian', 'user'],
