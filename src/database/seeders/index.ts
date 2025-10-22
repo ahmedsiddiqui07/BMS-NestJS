@@ -6,7 +6,7 @@ import { seedUsers } from './users.seed';
 void (async () => {
   try {
     await AppDataSource.initialize();
-    console.log('📦 Database connected.');
+    console.log('Database connected.');
     await seedRoles();
     await seedUsers();
     console.log('All seeders executed successfully!');
