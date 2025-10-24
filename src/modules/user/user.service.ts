@@ -69,7 +69,6 @@ export class UserService {
     const existingUser = await this.userRepo.findOne({ where: { email } });
     if (existingUser) throw new BadRequestException('User with this email already exist');
     const hashedPassword = await hashPassword(password);
-
     const newUser = this.userRepo.create({
       name,
       email,

@@ -34,27 +34,30 @@ export class BookService {
     return book;
   }
 
-  async updateBook({ id, updateBookDto, role }: UpdateBookInput): Promise<Book> {
-    const { author, is_active, is_available, stock, title } = updateBookDto;
-    const existingBook = await this.getBookById(id);
-    if (role === ROLES.LIBRARIAN) {
-      if (title !== undefined || author !== undefined || is_active !== undefined) {
-        throw new ForbiddenException('Forbidden: Insufficient Role');
-      }
-      existingBook.stock = stock ?? existingBook.stock;
-      existingBook.isAvailable = is_available ?? existingBook.isAvailable;
-    } else if ([ROLES.ADMIN, ROLES.SUPER_ADMIN].includes(role)) {
-      existingBook.title = title ?? existingBook.title;
-      existingBook.author = author ?? existingBook.author;
-      existingBook.stock = stock ?? existingBook.stock;
-      existingBook.isAvailable = is_available ?? existingBook.isAvailable;
-      existingBook.isActive = is_active ?? existingBook.isActive;
-    } else {
-      throw new ForbiddenException('Forbidden: Insufficient Role');
-    }
-    const book = await this.bookRepo.save(existingBook);
+  async updateBook({ id, updateBookDto, role }: UpdateBookInput) {
+    const book = await this.getBookById(id);
 
-    return book;
+    if (role === ROLES.LIBRARIAN) {
+      if (updateBookDto.title || updateBookDto.author || updateBookDto.is_active) {
+        throw new ForbiddenException('Librarian cannot update restricted fields');
+      }
+
+      if (updateBookDto.stock !== undefined) book.stock = updateBookDto.stock;
+      if (updateBookDto.is_available !== undefined) book.isAvailable = updateBookDto.is_available;
+    }
+
+    if (role === ROLES.ADMIN) {
+      if (updateBookDto.title !== undefined) book.title = updateBookDto.title;
+      if (updateBookDto.author !== undefined) book.author = updateBookDto.author;
+      if (updateBookDto.stock !== undefined) book.stock = updateBookDto.stock;
+      if (updateBookDto.is_available !== undefined) book.isAvailable = updateBookDto.is_available;
+      if (updateBookDto.is_active !== undefined) book.isActive = updateBookDto.is_active;
+    }
+
+    if (role === ROLES.USER) {
+      throw new ForbiddenException('User cannot update');
+    }
+    return await this.bookRepo.save(book);
   }
 
   async getBookById(id: number): Promise<Book> {
