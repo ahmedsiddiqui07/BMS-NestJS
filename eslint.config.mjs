@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'node_modules', 'eslint.config.mjs',],
+    ignores: ['dist', 'node_modules', 'eslint.config.mjs', 'jest.config.js'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
@@ -17,6 +17,7 @@ export default tseslint.config(
         ...globals.node,
         ...globals.jest,
       },
+
       sourceType: 'commonjs',
       parserOptions: {
         projectService: true,
