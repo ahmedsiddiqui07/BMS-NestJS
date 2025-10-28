@@ -98,10 +98,6 @@ describe('UserService', () => {
     });
   });
 
-  // -----------------------------------
-  // register()
-  // -----------------------------------
-
   describe('register', () => {
     it('should create user successfully', async () => {
       userRepo.findOne
@@ -123,9 +119,6 @@ describe('UserService', () => {
     });
   });
 
-  // -----------------------------------
-  // deleteAccount()
-  // -----------------------------------
   describe('deleteAccount', () => {
     it('should delete user', async () => {
       const existingUser = { id: 3, role: { name: ROLES.USER }, isActive: true };
