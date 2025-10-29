@@ -140,9 +140,6 @@ describe('UserService', () => {
     });
   });
 
-  // -----------------------------------
-  // updateProfile()
-  // -----------------------------------
   describe('updateProfile', () => {
     it('should update profile', async () => {
       userRepo.findOne.mockResolvedValue({ id: 1, name: 'old', isActive: true } as any);
@@ -152,10 +149,6 @@ describe('UserService', () => {
       expect(result).toEqual({ id: 1, name: 'new' });
     });
   });
-
-  // -----------------------------------
-  // getUserById()
-  // -----------------------------------
   describe('getUserById', () => {
     it('should return user', async () => {
       userRepo.findOne.mockResolvedValue({
