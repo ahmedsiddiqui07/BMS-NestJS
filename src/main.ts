@@ -5,36 +5,32 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { corsConfig, helmetConfig } from './config/middleware.config';
-import * as express from 'express';
+import cookieParser from 'cookie-parser';
 import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   });
-  app.setGlobalPrefix('api/v1');
-  const reflector = app.get(Reflector);
-  app.useGlobalInterceptors(new LoggingInterceptor(), new TransformInterceptor(reflector));
+
+  app.use(cookieParser());
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new LoggingInterceptor(), new TransformInterceptor(app.get(Reflector)));
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.use(helmetConfig());
   app.enableCors(corsConfig);
-  app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
 
-  app.use(express.static(join(__dirname, '..', 'public')));
+  // Static + EJS
+  app.useStaticAssets(join(__dirname, '..', 'public'));
+  app.setViewEngine('ejs');
+  app.setBaseViewsDir(join(__dirname, '..', 'views'));
 
-  app.getHttpAdapter().get('/', (req, res) => {
-    res.sendFile(join(__dirname, '..', 'public', 'socket-test.html'));
-  });
+  app.setGlobalPrefix('api/v1');
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  console.log(`🚀 Server is running on http://localhost:${port}`);
+  console.log(`🚀 Server Running on: http://localhost:${port}`);
 }
 
 void bootstrap();
